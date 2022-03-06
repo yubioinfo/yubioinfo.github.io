@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="PS：本文迁移自本人简书博客：https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;24adf5914303 前言由于网络安全、访问国外镜像网站速度较慢等原因，无法在线安装R包以及依赖包，成为困扰R 用户（包括笔者在内）的一个问题。于是最近上网查询了一下相关的解决办法，并且实现了离线安装R包以及依赖包，具体方法如下，希望对大家有所帮助。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R语言应用（1）：离线安装R包以及依赖包">
+<meta property="og:url" content="http://yoursite.com/2020/03/17/R-app-01/index.html">
+<meta property="og:site_name" content="Yubioinfo&#39;s">
+<meta property="og:description" content="PS：本文迁移自本人简书博客：https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;24adf5914303 前言由于网络安全、访问国外镜像网站速度较慢等原因，无法在线安装R包以及依赖包，成为困扰R 用户（包括笔者在内）的一个问题。于是最近上网查询了一下相关的解决办法，并且实现了离线安装R包以及依赖包，具体方法如下，希望对大家有所帮助。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-03-17T07:41:53.000Z">
+<meta property="article:modified_time" content="2020-03-18T03:02:17.000Z">
+<meta property="article:author" content="魚晨光">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="编程">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/03/17/R-app-01/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>R语言应用（1）：离线安装R包以及依赖包 | Yubioinfo's</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yubioinfo's</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Stay hungry, Stay foolish</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-top">
+
+    <a href="/top/" rel="section"><i class="fa fa-fw fa-signal"></i>top</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/yubioinfo" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/17/R-app-01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="魚晨光">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yubioinfo's">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          R语言应用（1）：离线安装R包以及依赖包
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-17 15:41:53" itemprop="dateCreated datePublished" datetime="2020-03-17T15:41:53+08:00">2020-03-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-18 11:02:17" itemprop="dateModified" datetime="2020-03-18T11:02:17+08:00">2020-03-18</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>PS：本文迁移自本人简书博客：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/24adf5914303">https://www.jianshu.com/p/24adf5914303</a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>由于网络安全、访问国外镜像网站速度较慢等原因，无法在线安装R包以及依赖包，成为困扰R 用户（包括笔者在内）的一个问题。于是最近上网查询了一下相关的解决办法，并且实现了离线安装R包以及依赖包，具体方法如下，希望对大家有所帮助。</p>
+<span id="more"></span>
+
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><h3 id="1）下载所有R包到本地"><a href="#1）下载所有R包到本地" class="headerlink" title="1）下载所有R包到本地"></a>1）下载所有R包到本地</h3><h4 id="linux-终端（或windows-cmd窗口）"><a href="#linux-终端（或windows-cmd窗口）" class="headerlink" title="linux 终端（或windows cmd窗口）"></a>linux 终端（或windows cmd窗口）</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /work/software/R/contrib</span><br><span class="line">wget -c  ftp://cran.r-project.org/pub/R/src/contrib/*.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h3 id="2）将所有下载的R包相关信息写到配置文件"><a href="#2）将所有下载的R包相关信息写到配置文件" class="headerlink" title="2）将所有下载的R包相关信息写到配置文件"></a>2）将所有下载的R包相关信息写到配置文件</h3><h4 id="R-终端"><a href="#R-终端" class="headerlink" title="R 终端"></a>R 终端</h4><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">path &lt;- <span class="built_in">c</span>(<span class="string">&quot;/work/software/R/contrib&quot;</span>)</span><br><span class="line">write_PACKAGES(path,type=<span class="string">&quot;source&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="3）写一个安装R包的脚本"><a href="#3）写一个安装R包的脚本" class="headerlink" title="3）写一个安装R包的脚本"></a>3）写一个安装R包的脚本</h3><p>为了方便批量安装多个R包，于是写一个简单的R脚本，install_Rpkg.R 脚本代码：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">library(tools)</span><br><span class="line"></span><br><span class="line">args=commandArgs(<span class="built_in">T</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="built_in">length</span>(args) == <span class="number">0</span> )&#123;</span><br><span class="line"></span><br><span class="line">cat(<span class="string">&quot;Usage: Rscript install_Rpkg.R package1 package2 package3 ...&quot;</span>)</span><br><span class="line">cat(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">quit(<span class="string">&quot;no&quot;</span>)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">path &lt;- <span class="built_in">c</span>(<span class="string">&quot;/work/software/R/contrib&quot;</span>)</span><br><span class="line"></span><br><span class="line">install.packages(args, contriburl=paste(<span class="string">&quot;file:&quot;</span>,path,sep=<span class="string">&#x27;&#x27;</span>),type=<span class="string">&quot;source&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="4）安装R包"><a href="#4）安装R包" class="headerlink" title="4）安装R包"></a>4）安装R包</h3><p>使用示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Rscript   install_Rpkg.R   ggplot2 </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">* installing *source* package ‘ggplot2’ ...</span><br><span class="line">** 成功将‘ggplot2’程序包解包并MD5和检查</span><br><span class="line">** R</span><br><span class="line">** data</span><br><span class="line">*** moving datasets to lazyload DB</span><br><span class="line">** inst</span><br><span class="line">** byte-compile and prepare package for lazy loading</span><br><span class="line">** help</span><br><span class="line">*** installing help indices</span><br><span class="line">*** copying figures</span><br><span class="line">** building package indices</span><br><span class="line">** installing vignettes</span><br><span class="line">** testing if installed package can be loaded</span><br><span class="line">* DONE (ggplot2)</span><br><span class="line">更新&#x27;.Library&#x27;里的HTML程序包列表</span><br><span class="line">Making &#x27;packages.html&#x27; ... 做完了。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[1] R语言离线下载包和依赖<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/liu365560704/article/details/70321153/">https://blog.csdn.net/liu365560704/article/details/70321153/</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>支持一下，持续更新！</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay-1coin.png" alt="魚晨光 WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay-any.png" alt="魚晨光 Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/17/tmp_old/firstblog/" rel="prev" title="My first website of blog">
+      <i class="fa fa-chevron-left"></i> My first website of blog
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/18/mactex/" rel="next" title="TeXLive installation on MacOS">
+      TeXLive installation on MacOS <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%EF%BC%89%E4%B8%8B%E8%BD%BD%E6%89%80%E6%9C%89R%E5%8C%85%E5%88%B0%E6%9C%AC%E5%9C%B0"><span class="nav-number">2.1.</span> <span class="nav-text">1）下载所有R包到本地</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#linux-%E7%BB%88%E7%AB%AF%EF%BC%88%E6%88%96windows-cmd%E7%AA%97%E5%8F%A3%EF%BC%89"><span class="nav-number">2.1.1.</span> <span class="nav-text">linux 终端（或windows cmd窗口）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%EF%BC%89%E5%B0%86%E6%89%80%E6%9C%89%E4%B8%8B%E8%BD%BD%E7%9A%84R%E5%8C%85%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF%E5%86%99%E5%88%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">2）将所有下载的R包相关信息写到配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#R-%E7%BB%88%E7%AB%AF"><span class="nav-number">2.2.1.</span> <span class="nav-text">R 终端</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%EF%BC%89%E5%86%99%E4%B8%80%E4%B8%AA%E5%AE%89%E8%A3%85R%E5%8C%85%E7%9A%84%E8%84%9A%E6%9C%AC"><span class="nav-number">2.3.</span> <span class="nav-text">3）写一个安装R包的脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%EF%BC%89%E5%AE%89%E8%A3%85R%E5%8C%85"><span class="nav-number">2.4.</span> <span class="nav-text">4）安装R包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="魚晨光"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">魚晨光</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yubioinfo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yubioinfo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:j.h.yu@163.com" title="E-Mail → mailto:j.h.yu@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.weibo.com/u/1805691552" title="Weibo → https:&#x2F;&#x2F;www.weibo.com&#x2F;u&#x2F;1805691552" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/0374d812f59f" title="简&amp;emsp;书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;0374d812f59f" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简&emsp;书</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">魚晨光</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v5.4.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
